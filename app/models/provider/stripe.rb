@@ -11,7 +11,8 @@ class Provider::Stripe
 
     case event.type
     when /^customer\.subscription\./
-      SubscriptionEventProcessor.new(event).process
+      # Subscription processing removed
+      Rails.logger.warn "Subscription event ignored: #{event.type}"
     else
       Rails.logger.warn "Unhandled event type: #{event.type}"
     end
@@ -23,44 +24,18 @@ class Provider::Stripe
   end
 
   def create_checkout_session(plan:, family_id:, family_email:, success_url:, cancel_url:)
-    customer = client.v1.customers.create(
-      email: family_email,
-      metadata: {
-        family_id: family_id
-      }
-    )
-
-    session = client.v1.checkout.sessions.create(
-      customer: customer.id,
-      line_items: [ { price: price_id_for(plan), quantity: 1 } ],
-      mode: "subscription",
-      allow_promotion_codes: true,
-      success_url: success_url,
-      cancel_url: cancel_url
-    )
-
-    NewCheckoutSession.new(url: session.url, customer_id: customer.id)
+    # Subscription checkout removed
+    raise Error, "Subscription checkout not available"
   end
 
   def get_checkout_result(session_id)
-    session = client.v1.checkout.sessions.retrieve(session_id)
-
-    unless session.status == "complete" && session.payment_status == "paid"
-      raise Error, "Checkout session not complete"
-    end
-
-    CheckoutSessionResult.new(success?: true, subscription_id: session.subscription)
-  rescue StandardError => e
-    Sentry.capture_exception(e)
-    Rails.logger.error "Error fetching checkout result for session #{session_id}: #{e.message}"
+    # Subscription checkout result removed
     CheckoutSessionResult.new(success?: false, subscription_id: nil)
   end
 
   def create_billing_portal_session_url(customer_id:, return_url:)
-    client.v1.billing_portal.sessions.create(
-      customer: customer_id,
-      return_url: return_url
-    ).url
+    # Billing portal removed
+    raise Error, "Billing portal not available"
   end
 
   def update_customer_metadata(customer_id:, metadata:)
@@ -74,12 +49,8 @@ class Provider::Stripe
     CheckoutSessionResult = Data.define(:success?, :subscription_id)
 
     def price_id_for(plan)
-      prices = {
-        monthly: ENV["STRIPE_MONTHLY_PRICE_ID"],
-        annual: ENV["STRIPE_ANNUAL_PRICE_ID"]
-      }
-
-      prices[plan.to_sym || :monthly]
+      # Subscription pricing removed
+      nil
     end
 
     def retrieve_event(event_id)

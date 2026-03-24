@@ -50,7 +50,6 @@ Rails.application.routes.draw do
     collection do
       get :preferences
       get :goals
-      get :trial
     end
   end
 
@@ -60,16 +59,8 @@ Rails.application.routes.draw do
     resource :hosting, only: %i[show update] do
       delete :clear_cache, on: :collection
     end
-    resource :billing, only: :show
     resource :security, only: :show
     resource :api_key, only: [ :show, :new, :create, :destroy ]
-  end
-
-  resource :subscription, only: %i[new show create] do
-    collection do
-      get :upgrade
-      get :success
-    end
   end
 
   resources :tags, except: :show do

@@ -23,6 +23,7 @@ FileUtils.chdir APP_ROOT do
   # end
 
   puts "\n== Preparing database =="
+  ENV['DB_HOST'] = '127.0.0.1'
   system! "bin/rails db:prepare"
 
   puts "\n== Removing old logs and tempfiles =="

@@ -1,11 +1,6 @@
 ---
 en:
   settings:
-    billings:
-      show:
-        page_title: Billing
-        subscription_subtitle: Update your subscription and billing details
-        subscription_title: Manage subscription
     preferences:
       show:
         country: Country
